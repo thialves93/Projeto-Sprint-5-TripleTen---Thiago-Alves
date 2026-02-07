@@ -1,3 +1,9 @@
+<<<<<<< Updated upstream
 pandas
 plotly_express
 streamlit
+=======
+pandas
+plotly_express
+streamlit
+>>>>>>> Stashed changes
