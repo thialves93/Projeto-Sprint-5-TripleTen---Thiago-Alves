@@ -16,6 +16,7 @@ if hist_button:
     fig = px.histogram(car_data, x="odometer")
     st.plotly_chart(fig, use_container_width=True)
 
+<<<<<<< HEAD
 # Botão para gráfico de dispersão
 scatter_button = st.button('Criar gráfico de dispersão')
 
@@ -74,3 +75,5 @@ if search_button:
         result_df = pd.DataFrame(rows)
         st.write('Top 3 modelos com menor odômetro na faixa de preço')
         st.dataframe(result_df.reset_index(drop=True))
+=======
+>>>>>>> da0293210318cbdc97d4e89c9aef207c4b47e603
