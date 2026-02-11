@@ -1,9 +1,4 @@
-import pandas as pd
-import plotly.express as px
-import streamlit as st
-
-
-# --- Configuração da página (precisa ser o primeiro comando de UI) ---
+# --- Configuração da página ---
 import streamlit as st
 st.set_page_config(page_title="Carros US - EDA", layout="wide")
 
@@ -25,11 +20,7 @@ def sanitize(df: pd.DataFrame) -> pd.DataFrame:
             df[col] = pd.to_numeric(df[col], errors="coerce")
     # Boolean (is_4wd como 0/1 → bool)
     if "is_4wd" in df.columns:
-        df["is_4wd"] = (
-        pd.to_numeric(df["is_4wd"], errors="coerce")
-        .fillna(0)
-        .astype(bool)
-    )
+        df["is_4wd"] = (pd.to_numeric(df["is_4wd"], errors="coerce").fillna(0).astype(bool))
     # Datas
     if "date_posted" in df.columns:
         df["date_posted"] = pd.to_datetime(df["date_posted"], errors="coerce")
@@ -189,97 +180,3 @@ if st.button("Buscar Top 3"):
             show_cols_pref = ["price","model_year","model","condition","odometer","transmission","type","paint_color"]
             show_cols = [c for c in show_cols_pref if c in candidates.columns]
             st.dataframe(top3[show_cols].reset_index(drop=True))
-
-
-
-
-
-
-
-
-breakpoint()
-
-        
-car_data = pd.read_csv('vehicles_us.csv') # lendo os dados
-hist_button = st.button('Criar histograma') # criar um botão
-        
-if hist_button: # se o botão for clicado
-# escrever uma mensagem
-    st.write('Criando um histograma para o conjunto de dados de anúncios de vendas de carros')
-            
-# criar um histograma
-    fig = px.histogram(car_data, x="odometer")
-        
-# exibir um gráfico Plotly interativo
-    st.plotly_chart(fig, use_container_width=True)
-
-    #############################################################################################################################
-
-# Botão para gráfico de dispersão
-# Selectboxes para escolher variáveis
-col1, col2 = st.columns(2)
-with col1:
-    x_var = st.selectbox('Escolha variável X:', ['odometer', 'model_year', 'price'])
-with col2:
-    y_var = st.selectbox('Escolha variável Y:', ['price', 'odometer', 'model_year'])
-
-if st.button('Criar gráfico de dispersão'):
-    if x_var != y_var:
-        fig = px.scatter(car_data, x=x_var, y=y_var)
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.warning('Escolha variáveis diferentes para X e Y!')
-
-#############################################################################################################################
-
-# Botão para buscar top 3 modelos por menor odômetro dentro de uma faixa de preço
-cols = ['price','model_year','model','condition','odometer','transmission','type','paint_color']
-
-# Preparar colunas numéricas
-car_data['price'] = pd.to_numeric(car_data['price'], errors='coerce')
-car_data['odometer'] = pd.to_numeric(car_data['odometer'], errors='coerce')
-
-# Inputs para faixa de preço
-price_min_default = int(car_data['price'].min(skipna=True) or 0)
-price_max_default = int(car_data['price'].max(skipna=True) or 100000)
-
-st.subheader('Filtrar por faixa de preço')
-col1, col2 = st.columns(2)
-with col1:
-    min_price_input = st.number_input('Preço mínimo', value=price_min_default, min_value=0, step=100)
-with col2:
-    max_price_input = st.number_input('Preço máximo', value=price_max_default, min_value=0, step=100)
-
-search_button = st.button('Buscar Top 3 por menor odômetro')
-
-if search_button:
-    df = car_data.copy()
-    df_filtered = df[df['price'].between(min_price_input, max_price_input)]
-
-    if df_filtered.empty:
-        st.warning('Nenhum veículo encontrado nessa faixa de preço.')
-    else:
-        # Para cada modelo, pegar o menor odômetro dentro da faixa; ordenar e selecionar top 3 modelos
-        model_min_odo = (
-            df_filtered
-            .dropna(subset=['model','odometer'])
-            .groupby('model', as_index=False)
-            .agg(min_odometer=('odometer','min'))
-            .sort_values('min_odometer', ascending=True)
-            .head(3)
-        )
-
-        # Selecionar a linha representativa (preenchida com as colunas solicitadas) para cada modelo
-        rows = []
-        for _, r in model_min_odo.iterrows():
-            model_name = r['model']
-            min_odo = r['min_odometer']
-            candidates = df_filtered[(df_filtered['model'] == model_name) & (df_filtered['odometer'] == min_odo)]
-            # se houver múltiplos candidatos, escolher o com maior ano do modelo
-            chosen = candidates.sort_values('model_year', ascending=False).iloc[0]
-            rows.append(chosen[cols])
-
-        result_df = pd.DataFrame(rows)
-        st.write('Top 3 modelos com menor odômetro na faixa de preço')
-        st.dataframe(result_df.reset_index(drop=True))
-
