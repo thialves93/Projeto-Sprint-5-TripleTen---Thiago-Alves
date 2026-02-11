@@ -1,3 +1,6 @@
 pandas
 plotly_express
+ploty
 streamlit
+numpy
+statsmodels
