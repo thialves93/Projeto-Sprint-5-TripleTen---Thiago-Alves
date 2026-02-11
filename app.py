@@ -25,7 +25,7 @@ def sanitize(df: pd.DataFrame) -> pd.DataFrame:
             df[col] = pd.to_numeric(df[col], errors="coerce")
     # Boolean (is_4wd como 0/1 → bool)
     if "is_4wd" in df.columns:
-        df["is_4wd"] = df["is_4wd"].fillna(0).astype(int).astype(bool)
+        df["is_4wd"] = df["is_4wd"].fillna(0).astype(float).astype(int).astype(bool)
     # Datas
     if "date_posted" in df.columns:
         df["date_posted"] = pd.to_datetime(df["date_posted"], errors="coerce")
